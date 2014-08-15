@@ -1,3 +1,6 @@
+#ifndef _HIREDIS_CLUSTER_H_
+#define _HIREDIS_CLUSTER_H_
+
 #include <stdarg.h>
 
 #include "hiredis.h"
@@ -13,3 +16,4 @@ redisReply *clusterCommand(clusterContext *cluster, const char *fmt, ...);
 
 void clusterFree(clusterContext *cluster);
 
+#endif
