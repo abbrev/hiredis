@@ -82,7 +82,7 @@ static void displayReply(const redisReply *reply)
 
 static void getKey(clusterContext *cluster, const char *key)
 {
-	fprintf(stderr, "getting key \"%s\":\n", key);
+	fprintf(stderr, "getting key \"%s\": ", key);
 	redisReply *reply = clusterCommand(cluster, "GET %s", key);
 	if (!reply) {
 		fprintf(stderr, "error executing command: %s\n", cluster->context->errstr);
@@ -101,8 +101,7 @@ int main()
 
 	cluster = clusterConnect("127.0.0.1", 7000);
 	if (!cluster || cluster->context->err) {
-		fprintf(stderr, "error connecting: %s\n", cluster ? cluster->context->errstr : "unknown");
-		exit(1);
+		goto error;
 	}
 	fprintf(stderr, "%s (%d)\n", __FILE__, __LINE__);
 
@@ -113,47 +112,84 @@ int main()
 	getKey(cluster, "{1}b");
 	getKey(cluster, "next-transaction");
 
+	fprintf(stderr, "WATCH: ");
 	reply = clusterCommand(cluster, "WATCH {1}a {1}b {1}b");
 	if (!reply) {
-		fprintf(stderr, "error executing command: %s\n", cluster->context->errstr);
-		exit(1);
+		goto error;
 	}
+	displayReply(reply);
+	freeReplyObject(reply);
+
+	fprintf(stderr, "MULTI: ");
 	reply = clusterCommand(cluster, "MULTI");
 	if (!reply) {
-		fprintf(stderr, "error executing command: %s\n", cluster->context->errstr);
-		exit(1);
+		goto error;
 	}
+	displayReply(reply);
+	freeReplyObject(reply);
+
 	getKey(cluster, "{1}a");
 	getKey(cluster, "{1}b");
+
+	fprintf(stderr, "MGET: ");
 	reply = clusterCommand(cluster, "MGET %s %s %s %s", "{1}a", "{1}b", "{1}c", "{1}foo");
 	if (!reply) {
-		fprintf(stderr, "error executing command: %s\n", cluster->context->errstr);
-		exit(1);
+		goto error;
 	}
 	displayReply(reply);
+	freeReplyObject(reply);
+
+#if 0
+	fprintf(stderr, "MGET: ");
+	reply = clusterCommand(cluster, "MGET {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a {1}a");
+	if (!reply) {
+		goto error;
+	}
+	displayReply(reply);
+	freeReplyObject(reply);
+#endif
+
+	fprintf(stderr, "STRLEN: ");
 	reply = clusterCommand(cluster, "strlen %s", "{1}a");
 	if (!reply) {
-		fprintf(stderr, "error executing command: %s\n", cluster->context->errstr);
-		exit(1);
+		goto error;
 	}
 	displayReply(reply);
+	freeReplyObject(reply);
+
 	getKey(cluster, "{1}c");
+
+	fprintf(stderr, "EXEC:\n");
 	reply = clusterCommand(cluster, "EXEC");
 	if (!reply) {
-		fprintf(stderr, "error executing command: %s\n", cluster->context->errstr);
-		exit(1);
+		goto error;
 	}
 	displayReply(reply);
+	freeReplyObject(reply);
 
+	fprintf(stderr, "UNWATCH: ");
 	reply = clusterCommand(cluster, "UNWATCH");
 	if (!reply) {
-		fprintf(stderr, "error executing command: %s\n", cluster->context->errstr);
-		exit(1);
+		goto error;
 	}
 	//fprintf(stderr, "%s (%d)\n", __FILE__, __LINE__);
 
 	displayReply(reply);
 	freeReplyObject(reply);
+
+	fprintf(stderr, "CLUSTER SLOTS:\n");
+	reply = clusterCommand(cluster, "CLUSTER SLOTS");
+	if (!reply) {
+		goto error;
+	}
+	displayReply(reply);
+	freeReplyObject(reply);
+
+error:
+	if (cluster && cluster->context->err) {
+		fprintf(stderr, "error: %s\n", cluster->context->errstr);
+	}
+	clusterFree(cluster);
 
 	return 0;
 }
