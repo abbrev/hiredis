@@ -34,7 +34,7 @@ static void displayReplyRecursive(const redisReply *reply, int level)
 			//The command replied with an integer. The integer
 			//value can be accessed using the reply->integer field
 			//of type long long.
-			fprintf(stderr, "%lld\n", reply->integer);
+			fprintf(stderr, "(integer) %lld\n", reply->integer);
 			break;
 
 		case REDIS_REPLY_NIL:
@@ -60,8 +60,14 @@ static void displayReplyRecursive(const redisReply *reply, int level)
 			//fprintf(stderr, "array reply (%zu elements):\n", reply->elements);
 			for (size_t i = 0; i < reply->elements; ++i) {
 				indent(i == 0 ? 0 : level);
-				fprintf(stderr, "%2zu) ", i);
-				displayReplyRecursive(reply->element[i], level + 4);
+				int width = 1;
+				size_t n = reply->elements;
+				while (n >= 10) {
+					n /= 10;
+					++width;
+				}
+				fprintf(stderr, "%*zu) ", width, i + 1);
+				displayReplyRecursive(reply->element[i], level + width + 2);
 			}
 			break;
 		default:
