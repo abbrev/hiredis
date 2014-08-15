@@ -13,6 +13,7 @@ clusterContext *clusterConnect(const char *host, int port);
 
 redisReply *clustervCommand(clusterContext *cluster, const char *fmt, va_list ap);
 redisReply *clusterCommand(clusterContext *cluster, const char *fmt, ...);
+redisReply *clusterCommandArgv(clusterContext *cluster, int argc, const char **argv, const size_t *argvlen);
 
 void clusterFree(clusterContext *cluster);
 
