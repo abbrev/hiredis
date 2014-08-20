@@ -82,15 +82,15 @@ redisReply *clusterSetIfNotExists(clusterContext *c, const char *key, const char
 	return set(c, key, value, ttl, SET_IF_NOT_EXISTS);
 }
 
-redisReply *clusterIncr(clusterContext *c, const char *key)
+redisReply *clusterIncr(clusterContext *c, const char *key, long long step)
 {
-	redisReply *reply = clusterCommand(c, "INCR %s", key);
+	redisReply *reply = clusterCommand(c, "INCR %s %lld", key, step);
 	return reply;
 }
 
-redisReply *clusterDecr(clusterContext *c, const char *key)
+redisReply *clusterDecr(clusterContext *c, const char *key, long long step)
 {
-	redisReply *reply = clusterCommand(c, "DECR %s", key);
+	redisReply *reply = clusterCommand(c, "DECR %s %lld", key, step);
 	return reply;
 }
 
