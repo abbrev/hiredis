@@ -84,13 +84,13 @@ redisReply *clusterSetIfNotExists(clusterContext *c, const char *key, const char
 
 redisReply *clusterIncr(clusterContext *c, const char *key, long long step)
 {
-	redisReply *reply = clusterCommand(c, "INCR %s %lld", key, step);
+	redisReply *reply = clusterCommand(c, "INCRBY %s %lld", key, step);
 	return reply;
 }
 
 redisReply *clusterDecr(clusterContext *c, const char *key, long long step)
 {
-	redisReply *reply = clusterCommand(c, "DECR %s %lld", key, step);
+	redisReply *reply = clusterCommand(c, "DECRBY %s %lld", key, step);
 	return reply;
 }
 
