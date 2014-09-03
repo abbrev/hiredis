@@ -115,7 +115,7 @@ redisReply *clustervCommand(clusterContext *cluster, const char *fmt, va_list ap
 
 		reply = redisvCommand(cluster->context, fmt, aq);
 
-		va_end(ap);
+		va_end(aq);
 
 		//displayReply(reply);
 		if (reply->type == REDIS_REPLY_ERROR) {
